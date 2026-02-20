@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Auto Cluster (and soon Carplay) Integration - Mh2p/PCM5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --audi-red: #BB0A30;
+            --audi-black: #000000;
+            --audi-gray: #666666;
+            --audi-light-gray: #F5F5F5;
+            --text-dark: #1a1a1a;
+            --text-light: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--text-light);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--audi-black) 0%, #1a1a1a 100%);
+            color: var(--text-light);
+            padding: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--audi-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--audi-light-gray);
+            margin-top: 0.5rem;
+        }
+
+        nav {
+            background: var(--audi-light-gray);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--audi-red);
+        }
+
+        section {
+            padding: 4rem 0;
+        }
+
+        section:nth-child(even) {
+            background: var(--audi-light-gray);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--audi-black);
+            border-bottom: 3px solid var(--audi-red);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+            color: var(--audi-black);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            margin-top: 0;
+            color: var(--audi-red);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-left: 1rem;
+        }
+
+        .status-working {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-beta {
+            background: #f59e0b;
+            color: white;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        pre {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        .tech-stack {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .tech-badge {
+            background: var(--audi-black);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--audi-red);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 1rem 0 1rem 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -0.6rem;
+            top: 1.5rem;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: var(--audi-red);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--audi-red);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--audi-red);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            background: #990825;
+        }
+
+        footer {
+            background: var(--audi-black);
+            color: var(--text-light);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>
+                <span class="logo">AA</span>
+                Android Auto (and soon Carplay) Cluster Integration
+            </h1>
+            <p class="tagline">Bridge Android Auto (and soon Carplay) navigation from Porsche PCM5 / VW / Audi MH2P to instrument cluster displays</p>
+
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+				<li><a href="https://ko-fi.com/fifthbro" target="_blank">Sponsor</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+                <li><a href="#changelog">Changelog</a></li>
+                <li><a href="https://github.com/fifthbro/mh2p-cluster" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+  <section id="Sponsor">
+        <div class="container">
+		  <h2><a href="https://ko-fi.com/fifthbro" class="cta-button">Sponsor</a></h2>
+            
+        </div>
+    </section>		  
+		  
+    <section id="overview">
+        <div class="container">
+		
+            <h2>Overview</h2>
+            <p>Preliminary integration that displays Android Auto navigation instructions from Porsche PCM5 / VW / Audi MH2P to instrument cluster displays to  instrument cluster displays. Translates Android Auto DSI events into BAP (Board Access Protocol) messages for real-time turn-by-turn navigation on your cluster.</p>
+
+            <div class="info-box">
+                <strong>✅ Status:</strong> Beta (v01010)
+            </div>
+
+            <h3>Why This Project?</h3>
+            <p>Native  navigation monopolizes the instrument cluster, this code will change that!. This integration:</p>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li>Intercepts Android Auto navigation events via DSI (Device System Interface)</li>
+                <li>Converts them to BAP protocol messages</li>
+                <li>Sends to cluster via CombiBAPServiceNavi</li>
+                <li>Overrides native navigation with 2-second heartbeat</li>
+                <li>Supports both Google Maps and Waze</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="container">
+            <h2>Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>Full Navigation Support</h3>
+                    <p>Turn arrows, distance, road names, roundabouts, highway exits - everything from Android Auto displayed on your cluster.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-Time Updates</h3>
+                    <p>60 FPS updates with automatic heartbeat to override native navigation. Seamless transitions and no flickering.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Intelligent Unit Detection</h3>
+                    <p>Automatic km/mi and LHD/RHD detection via DSI services with JSON country fallback. Supports 60+ countries.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Automatic Storage Mounting</h3>
+                    <p>Auto-remounts SD/USB storage as writable via ASI services for external logging. No manual intervention needed.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>JSON Configuration</h3>
+                    <p>Runtime-configurable logging, heartbeat, units, and more via embedded JSON config. No recompilation required.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Comprehensive Logging</h3>
+                    <p>Detailed file logging with configurable size limits, external storage support, and optional message hashing for privacy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="architecture">
+        <div class="container">
+            <h2>Architecture</h2>
+
+            <h3>Component Overview</h3>
+            <pre><code>Android Auto (Phone)
+        ↓
+    DSI Events (Navigation, Media)
+        ↓
+AndroidAutoClusterIntegration
+    ├─ Event Processing
+    ├─ Unit Conversion (km/mi)
+    ├─ BAP Message Generation
+    └─ Heartbeat Management
+        ↓
+CombiBAPServiceNavi (OSGi)
+        ↓
+MOST Bus → Instrument Cluster</code></pre>
+
+            <h3>Key Components</h3>
+
+            <h4>AndroidAutoClusterIntegration</h4>
+            <p>Core integration class that implements <code>DSIAndroidAuto2ListenerSafe</code> to receive Android Auto events:</p>
+            <ul style="margin-left: 2rem;">
+                <li><strong>Navigation Events:</strong> Turn info, distance, route guidance status</li>
+                <li><strong>BAP Translation:</strong> Converts AA event codes to BAP mainElement/direction</li>
+                <li><strong>Heartbeat:</strong> 2-second timer continuously sending BAP messages to override native nav</li>
+                <li><strong>Configuration:</strong> Loads JSON config embedded in JAR with runtime overrides</li>
+            </ul>
+
+            <h4>AndroidAuto2Subsystem</h4>
+            <p>Manages lifecycle and OSGi service discovery:</p>
+            <ul style="margin-left: 2rem;">
+                <li>Creates AndroidAutoClusterIntegration with StorageMountHandler</li>
+                <li>Looks up CombiBAPServiceNavi, ISysServices, ICarCoreServices</li>
+                <li>Registers integration with AndroidAuto2ListenerDistributor</li>
+                <li>Initializes StorageMountHandler BEFORE logging starts</li>
+            </ul>
+
+
+            <h3>BAP Protocol Mapping</h3>
+            <pre><code>Android Auto Event → BAP Message
+─────────────────────────────────
+TURN_LEFT (4, side=1)    → mainElement=2 (TURN), direction=1 (LEFT)
+SLIGHT_RIGHT (3, side=2) → mainElement=2 (TURN), direction=4 (SLIGHT_RIGHT)
+ROUNDABOUT (11-13)       → mainElement=3 (ROUNDABOUT), direction=0 (STRAIGHT)
+ON_RAMP (7)              → mainElement=4 (HIGHWAY), direction=left/right
+DESTINATION (19)         → mainElement=6 (DESTINATION)
+
+Distance updates         → updateDistanceToNextManeuver(distance, unit, bargraph)
+Road names               → updateTurnToInfo(roadName, signpost)</code></pre>
+        </div>
+    </section>
+
+    <section id="installation">
+        <div class="container">
+            <h2>Installation</h2>
+
+            <div class="warning-box">
+                <strong>⚠️ Warning:</strong> This modifies java files on you PCM5/Mh2p unit. Only proceed if you understand the risks .
+            </div>
+
+            <h3>Prerequisites</h3>
+            <ul style="margin-left: 2rem;">
+                <li>Car with PCM5/Mh2p</li>
+                <li>SD card</li>
+                <li>Android Auto phone</li>
+                <li>iPhone (coming soon)</li>
+            </ul>
+			
+            <h3>Build</h3>
+            <pre><code>Comin soon<git-hash>!</code></pre>
+
+            <h3>Deploy</h3>
+            <pre><code>Get in touch if you want to try Beta</code></pre>
+
+        </div>
+    </section>
+
+    <section id="configuration">
+        <div class="container">
+            <h2>Configuration</h2>
+
+            <p>Configuration is embedded in the JAR at <code>androidauto_cluster_config.json</code>. Edit and recompile to change settings:</p>
+
+            <h3>Config File</h3>
+            <pre><code>{
+  "buildVersion": "__VERSION__",
+  "config": {
+    "enableFileLogging": true,
+    "enableFileHashing": true,
+    "enableExternalLogging": true,
+    "enableRoundaboutLatching": true,
+    "enableHeartbeat": true,
+    "forceImperial": false,
+    "forceRHD": false,
+    "logFilePath": "/tmp/androidauto_cluster.log",
+    "hashedLogFilePath": "/tmp/androidauto_cluster_hashed.log",
+    "logFileSize": 1
+  },
+  "countries": [
+    { "code": "US", "rhd": false, "imperial": true },
+    { "code": "GB", "rhd": true, "imperial": true },
+    { "code": "DE", "rhd": false, "imperial": false }
+    // ... 60+ countries
+  ]
+}</code></pre>
+
+            <h3>Configuration Options</h3>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>enableFileLogging:</strong> Enable/disable log file writing</li>
+                <li><strong>enableFileHashing:</strong> Write sanitized (hashed) log file for privacy</li>
+                <li><strong>enableExternalLogging:</strong> Try SD/USB storage before /tmp</li>
+                <li><strong>enableRoundaboutLatching:</strong> Keep roundabout info until exit</li>
+                <li><strong>enableHeartbeat:</strong> 2-second BAP resend to override native nav</li>
+                <li><strong>forceImperial:</strong> Force miles/mph (overrides DSI/JSON)</li>
+                <li><strong>forceRHD:</strong> Force right-hand drive display</li>
+                <li><strong>logFileSize:</strong> Log rotation size in MB (1-100)</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="changelog">
+        <div class="container">
+            <h2>Changelog</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>v1010 - Beta candidate <span class="status-badge status-working">LATEST</span></h3>
+                    <p>Testing compatiblity across Porsche Cayenne, Macan and Panamera</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="contributing">
+        <div class="container">
+		<h2>Credits</h2>			        
+		<p>One1Blt: Android Auto/VNC to Mib2 rendering <a href=https://github.com/OneB1t/VcMOSTRenderMqb>https://github.com/OneB1t/VcMOSTRenderMqb</a></p>		
+		<p>adi961: Turn-by-turn to VC integration <a href=https://github.com/adi961/mib2-android-auto-vc>https://github.com/adi961/mib2-android-auto-vc</a></p>
+		<p>LawPaul: Mh2p Modkit <a href=https://lawpaul.github.io/MH2p_SD_ModKit_Site/>https://lawpaul.github.io/MH2p_SD_ModKit_Site</a></p>
+		<p>LukaDev: Managing screens in VW/Mib2</p>
+		<p>litdreams10: general platform knowledge, Android Auto testing</p>
+		<p>cojones: Android Auto testing</p>
+		<p>finpat: Android Auto testing</p>
+
+			<h2>Contributing</h2>
+			
+            <p>This project is the result of extensive reverse-engineering and testing on mh2p. Contributions welcome!</p>
+
+            <h3>Development Setup</h3>
+		
+
+            <a href="https://github.com/fifthBro/mh2p-cluster" class="cta-button">View on GitHub (coming soon)→</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Android Auto Cluster Integration | Open Source Project</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Not affiliated with anyone</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in nav
+        window.addEventListener('scroll', () => {
+            let current = '';
+            document.querySelectorAll('section').forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.style.color = '';
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.style.color = 'var(--audi-red)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
