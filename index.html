@@ -277,6 +277,41 @@
             border-radius: 4px;
         }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 2rem 0;
+            font-size: 0.92rem;
+        }
+
+        th {
+            background: var(--audi-black);
+            color: white;
+            padding: 0.65rem 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 0.65rem 1rem;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td { background: #fafafa; }
+
+        h4 {
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.5rem 0;
+            color: var(--audi-red);
+        }
+
+        .doc-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #ddd;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -296,7 +331,7 @@
     <header>
         <div class="container">
             <h1>
-                <span class="logo">AA</span>
+                <span class="logo"></span>
                 Android Auto (and soon Carplay) Cluster Integration
             </h1>
             <p class="tagline">Bridge Android Auto (and soon Carplay) navigation from Porsche PCM5 / VW / Audi MH2P to instrument cluster displays</p>
@@ -320,7 +355,12 @@
     </nav>
   <section id="Sponsor">
         <div class="container">
-		  <h2><a href="https://ko-fi.com/fifthbro" class="cta-button">Sponsor</a></h2>
+		  <h><a href="https://ko-fi.com/fifthbro" class="cta-button">Sponsor</a></h2>
+		   <h3>This software is free and not for commercial use</h3>
+            
+        </div>
+		 <div class="container">
+		 
             
         </div>
     </section>		  
@@ -332,7 +372,7 @@
             <p>Preliminary integration that displays Android Auto navigation instructions from Porsche PCM5 / VW / Audi MH2P to instrument cluster displays to  instrument cluster displays. Translates Android Auto DSI events into BAP (Board Access Protocol) messages for real-time turn-by-turn navigation on your cluster.</p>
 
             <div class="info-box">
-                <strong>✅ Status:</strong> Beta (v01010)
+                <strong>✅ Status:</strong> Beta (v01027)
             </div>
 
             <h3>Why This Project?</h3>
@@ -393,54 +433,104 @@
     <section id="architecture">
         <div class="container">
             <h2>Architecture</h2>
+            <p><code>AndroidAutoClusterIntegration</code> is a single Java class (Java 1.4 compatible — no generics, no enhanced for-each, no StringBuilder) that bridges the Android Auto DSI event stream to the Porsche/Audi instrument cluster BAP navigation protocol.</p>
 
-            <h3>Component Overview</h3>
+            <h3>Data Flow</h3>
             <pre><code>Android Auto (Phone)
         ↓
     DSI Events (Navigation, Media)
         ↓
 AndroidAutoClusterIntegration
-    ├─ Event Processing
-    ├─ Unit Conversion (km/mi)
-    ├─ BAP Message Generation
-    └─ Heartbeat Management
+    ├─ navFocusRequestNotification   → start/stop heartbeat, set RGType
+    ├─ updateNavigationNextTurnEvent → convertToBAPManeuver → updateManeuverDescriptor
+    ├─ updateNavigationNextTurnDistance → rate-limit → unit convert → updateDistanceToNextManeuver
+    └─ Heartbeat Timer (every 2s)   → resend cached maneuver+distance
         ↓
 CombiBAPServiceNavi (OSGi)
         ↓
-MOST Bus → Instrument Cluster</code></pre>
+Instrument Cluster</code></pre>
 
-            <h3>Key Components</h3>
+            <div class="doc-section">
+                <h3>Service Injection</h3>
+                <p>All platform services are injected via setters after construction:</p>
+                <table>
+                    <tr><th>Service</th><th>Purpose</th></tr>
+                    <tr><td><code>CombiBAPServiceNavi</code></td><td>BAP cluster output — maneuver, distance, RGStatus, destination</td></tr>
+                    <tr><td><code>ISysServices</code></td><td>Unit system detection, car clock, car type/variant detection</td></tr>
+                    <tr><td><code>ICarCoreServices</code></td><td>Drive-side detection via <code>exteriorLight().leftHandTraffic()</code></td></tr>
+                    <tr><td><code>StorageMountHandler</code></td><td>Remounts USB/SD R/W for external log writing</td></tr>                    
+                    <tr><td><code>ICarStatisticsService</code></td><td>Injected but not currently used in active code</td></tr>
+                </table>
+            </div>
 
-            <h4>AndroidAutoClusterIntegration</h4>
-            <p>Core integration class that implements <code>DSIAndroidAuto2ListenerSafe</code> to receive Android Auto events:</p>
-            <ul style="margin-left: 2rem;">
-                <li><strong>Navigation Events:</strong> Turn info, distance, route guidance status</li>
-                <li><strong>BAP Translation:</strong> Converts AA event codes to BAP mainElement/direction</li>
-                <li><strong>Heartbeat:</strong> 2-second timer continuously sending BAP messages to override native nav</li>
-                <li><strong>Configuration:</strong> Loads JSON config embedded in JAR with runtime overrides</li>
-            </ul>
+            <div class="doc-section">
+                <h3>AA Event → BAP Maneuver Translation</h3>
+                <p>Maps Android Auto <code>eventCode</code> (1–19) + <code>turnSide</code> + <code>angle</code> + <code>num</code> to a BAP maneuver descriptor. Direction is a 0–255 byte (0=straight, 64=left/90°, 128=back/180°, 192=right/270°).</p>
+                <table>
+                    <tr><th>Event(s)</th><th>Translation</th></tr>
+                    <tr><td><code>event=3–5</code> (turns)</td><td>TURN, direction from <code>angle</code> or fallback to <code>turnSide</code></td></tr>
+                    <tr><td><code>event=6</code> (U-turn)</td><td>UTURN</td></tr>
+                    <tr><td><code>event=7</code> (on-ramp)</td><td>TURN_ON_MAINROAD, direction from <code>turnSide</code></td></tr>
+                    <tr><td><code>event=8/10</code> (off-ramp/merge)</td><td>EXIT_LEFT or EXIT_RIGHT based on <code>turnSide</code>; side=0 → FOLLOW_STREET</td></tr>
+                    <tr><td><code>event=9</code> (fork)</td><td>FORK_2</td></tr>
+                    <tr><td><code>event=14</code> (STRAIGHT/KEEP)</td><td><code>num==1</code> = Waze lane-keep → FOLLOW_STREET; <code>num==0</code> or <code>num&gt;1</code> = motorway exit → EXIT_LEFT/RIGHT</td></tr>
+                    <tr><td><code>event=11–13</code> (roundabout)</td><td>ROUNDABOUT_TRS_LEFT/RIGHT. RHD angle correction: <code>(540−angle)%360</code>; LHD: <code>(angle+180)%360</code>. T-junction override: 180° → 0° when exit ≤ 2</td></tr>
+                    <tr><td><code>event=16/17</code> (ferry)</td><td>FERRY</td></tr>
+                    <tr><td><code>event=19</code> (destination preview)</td><td>Sets flag, falls through as FOLLOW_STREET. DESTINATION symbol shown only on <code>event=0 valid=2</code></td></tr>
+                </table>
+            </div>
 
-            <h4>AndroidAuto2Subsystem</h4>
-            <p>Manages lifecycle and OSGi service discovery:</p>
-            <ul style="margin-left: 2rem;">
-                <li>Creates AndroidAutoClusterIntegration with StorageMountHandler</li>
-                <li>Looks up CombiBAPServiceNavi, ISysServices, ICarCoreServices</li>
-                <li>Registers integration with AndroidAuto2ListenerDistributor</li>
-                <li>Initializes StorageMountHandler BEFORE logging starts</li>
-            </ul>
+            <div class="doc-section">
+                <h3>Distance Update Pipeline</h3>
+                <ol style="margin-left: 2rem;">
+                    <li style="margin-bottom:0.5rem;"><strong>Throttle check</strong> — minimum ms between sends per proximity zone (veryFar=2000ms down to now=100ms). In "always" bargraph mode, bargraph-only updates bypass the throttle.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Maneuver change detection</strong> — key = <code>road|eventCode|turnSide</code>. New maneuver resets baseline distance and bypasses throttle for first update.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Distance threshold</strong> — minimum change required per zone (100m at veryFar down to 5m at now) before text updates. Bargraph always updates for smooth fill.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Unit conversion</strong> — metric: m below 100m, tenths of km to 19.9km. Imperial: yards below 161m, tenths of miles to 9.9mi.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Bargraph</strong> — <code>(1 − distance/maneuverInitialDistance) × 100</code>, clamped 0–100.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Roundabout traversal</strong> — force distance/bargraph to 0 during CONTINUE events to suppress erratic display inside roundabout.</li>
+                </ol>
+            </div>
 
+            <div class="doc-section">
+                <h3>Heartbeat</h3>
+                <p>A daemon timer fires every <code>heartbeatInterval</code> ms (default 2000ms) while navigation is active. It resends the last cached maneuver, distance, bargraph, and destination data to continuously override the cluster's native navigation display.</p>
+            </div>
 
-            <h3>BAP Protocol Mapping</h3>
-            <pre><code>Android Auto Event → BAP Message
-─────────────────────────────────
-TURN_LEFT (4, side=1)    → mainElement=2 (TURN), direction=1 (LEFT)
-SLIGHT_RIGHT (3, side=2) → mainElement=2 (TURN), direction=4 (SLIGHT_RIGHT)
-ROUNDABOUT (11-13)       → mainElement=3 (ROUNDABOUT), direction=0 (STRAIGHT)
-ON_RAMP (7)              → mainElement=4 (HIGHWAY), direction=left/right
-DESTINATION (19)         → mainElement=6 (DESTINATION)
+            <div class="doc-section">
+                <h3>Unit &amp; Drive-Side Detection (3-tier each)</h3>
+                <table>
+                    <tr><th>Priority</th><th>Units</th><th>Drive side</th></tr>
+                    <tr><td>1 (highest)</td><td><code>forceImperial</code> config flag</td><td><code>forceRHD</code> config flag</td></tr>
+                    <tr><td>2</td><td><code>ISysServices.units().distance().setting()</code> (1=km, 2=mi)</td><td><code>ICarCoreServices.exteriorLight().leftHandTraffic()</code></td></tr>
+                    <tr><td>3</td><td>JSON <code>countries</code> table via locale/system properties</td><td>JSON <code>countries</code> table <code>rhd</code> field</td></tr>
+                    <tr><td>4 (default)</td><td>Metric</td><td>LHD</td></tr>
+                </table>
+            </div>
 
-Distance updates         → updateDistanceToNextManeuver(distance, unit, bargraph)
-Road names               → updateTurnToInfo(roadName, signpost)</code></pre>
+            <div class="doc-section">
+                <h3>Bargraph Auto Mode — Car Variant Detection</h3>
+                <p>When <code>bargraphMode="auto"</code>, the car type is queried at runtime via <code>sysServices.config().carType()</code>:</p>
+                <table>
+                    <tr><th>Car</th><th>carClass</th><th>generation</th><th>Resolved mode</th></tr>
+                    <tr><td>Cayenne E3</td><td>5</td><td>3</td><td><code>"always"</code></td></tr>
+                    <tr><td>911 992</td><td>6</td><td>8</td><td><code>"always"</code></td></tr>
+                    <tr><td>Panamera G2</td><td>6</td><td>2</td><td><code>"always"</code></td></tr>
+                    <tr><td>Macan</td><td>4</td><td>1</td><td><code>"distance"</code></td></tr>
+                    <tr><td>Unknown</td><td>any</td><td>any</td><td><code>"always"</code> (safe default)</td></tr>
+                </table>
+                <p>Explicit JSON values always override auto-detection.</p>
+            </div>
+
+            <div class="doc-section">
+                <h3>Roundabout Latching</h3>
+                <p>Android Auto sends EXIT (event=13) first, then CONTINUE (event=12) × N through the roundabout. Latching caches the exit direction on event=11/13 and reuses it for all subsequent event=12 updates, preventing the arrow from flickering. Cleared on any non-roundabout event. Configurable via <code>enableRoundaboutLatching</code>.</p>
+            </div>
+
+            <div class="doc-section">
+                <h3>Logging</h3>
+                <p>Two parallel log files: <strong>plain</strong> (full road names) and <strong>hashed</strong> (road names, music metadata replaced with <code>[HASH_nnn]</code> for privacy). Each entry has a dual timestamp: QNX boot time + real car clock from <code>ISysServices.clock().localTime()</code>. When <code>enableExternalLogging=true</code>, logs are written to USB/SD if writable, with automatic fallback to <code>/tmp</code>.</p>
+            </div>
         </div>
     </section>
 
@@ -472,43 +562,96 @@ Road names               → updateTurnToInfo(roadName, signpost)</code></pre>
     <section id="configuration">
         <div class="container">
             <h2>Configuration</h2>
+            <p>The config file <code>androidauto_cluster_config.json</code> is embedded in the JAR. <BR>To override without reflashing, place the file on a USB stick or SD card — the app checks these paths first:</p>
+            <pre><code>/fs/usb0_0/androidauto_cluster_config.json
+/fs/usb1_0/androidauto_cluster_config.json
+/fs/sda0/androidauto_cluster_config.json
+/fs/sdb0/androidauto_cluster_config.json</code></pre>
 
-            <p>Configuration is embedded in the JAR at <code>androidauto_cluster_config.json</code>. Edit and recompile to change settings:</p>
+            <div class="doc-section">
+                <h3>Logging</h3>
+                <table>
+                    <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>enableFileLogging</code></td><td>bool</td><td><code>true</code></td><td>Master switch for all file logging.</td></tr>
+                    <tr><td><code>enableFileHashing</code></td><td>bool</td><td><code>false</code></td><td>Write a second log with road names/music hashed for privacy. Requires <code>enableFileLogging</code>.</td></tr>
+                    <tr><td><code>enableExternalLogging</code></td><td>bool</td><td><code>false</code></td><td>Write logs to USB/SD if present; falls back to <code>logFilePath</code>.</td></tr>
+                    <tr><td><code>logFilePath</code></td><td>string</td><td><code>/tmp/androidauto_cluster.log</code></td><td>Plain log file path.</td></tr>
+                    <tr><td><code>hashedLogFilePath</code></td><td>string</td><td><code>/tmp/androidauto_cluster_hashed.log</code></td><td>Hashed log file path.</td></tr>
+                    <tr><td><code>logFileSize</code></td><td>int (MB)</td><td><code>50</code></td><td>Max file size before deletion and restart. Range: 1–100.</td></tr>
+                </table>
+            </div>
 
-            <h3>Config File</h3>
-            <pre><code>{
-  "buildVersion": "__VERSION__",
-  "config": {
-    "enableFileLogging": true,
-    "enableFileHashing": true,
-    "enableExternalLogging": true,
-    "enableRoundaboutLatching": true,
-    "enableHeartbeat": true,
-    "forceImperial": false,
-    "forceRHD": false,
-    "logFilePath": "/tmp/androidauto_cluster.log",
-    "hashedLogFilePath": "/tmp/androidauto_cluster_hashed.log",
-    "logFileSize": 1
-  },
-  "countries": [
-    { "code": "US", "rhd": false, "imperial": true },
-    { "code": "GB", "rhd": true, "imperial": true },
-    { "code": "DE", "rhd": false, "imperial": false }
-    // ... 60+ countries
-  ]
+            <div class="doc-section">
+                <h3>Features</h3>
+                <table>
+                    <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>enableRoundaboutLatching</code></td><td>bool</td><td><code>true</code></td><td>Cache and hold roundabout exit direction across ENTER→CONTINUE→EXIT events to prevent arrow flickering.</td></tr>
+                    <tr><td><code>enableHeartbeat</code></td><td>bool</td><td><code>true</code></td><td>Periodically resend last maneuver+distance to prevent native nav from overwriting AA data.</td></tr>
+                    <tr><td><code>heartbeatInterval</code></td><td>int (ms)</td><td><code>2000</code></td><td>Heartbeat period. Range: 100–10000.</td></tr>
+                    <tr><td><code>maneuverStateMask</code></td><td>int</td><td><code>0</code></td><td>Bitmask for <code>updateManeuverState</code> calls. <BR><code>0</code> = disabled. <BR>bit0=state1 FOLLOW (&gt;500m), <BR>bit1=state2 PREPARE (200–500m), <BR>bit2=state3 DISTANCE (50–200m), <BR>bit3=state4 CALL_FOR_ACTION (&lt;50m). Falls back to nearest lower enabled state. <BR>Example: <code>15</code> (0b1111) = all states.</td></tr>
+                </table>
+            </div>
+
+            <div class="doc-section">
+                <h3>Units and Display</h3>
+                <table>
+                    <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>forceImperial</code></td><td>bool</td><td><code>false</code></td><td>Always use miles/yards, ignoring car settings. For testing on metric testbenches.</td></tr>
+                    <tr><td><code>forceRHD</code></td><td>bool</td><td><code>false</code></td><td>Always treat vehicle as right-hand drive, overriding all detection.</td></tr>
+                    <tr><td><code>metricUnitThreshold</code></td><td>int (m)</td><td><code>100</code></td><td>Below this, display switches from km to m. Range: 50–5000.</td></tr>
+                    <tr><td><code>imperialUnitThreshold</code></td><td>int (m)</td><td><code>161</code></td><td>Below this (~0.1 mi), display switches from miles to yards. Range: 50–5000.</td></tr>
+                    <tr><td><code>destinationDisplayDuration</code></td><td>int (ms)</td><td><code>5000</code></td><td>How long to hold the arrival maneuver on screen before clearing. Range: 0–10000.</td></tr>
+                </table>
+            </div>
+
+            <div class="doc-section">
+                <h3>Bargraph</h3>
+                <table>
+                    <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                    <tr><td><code>bargraphMode</code></td><td>string</td><td><code>"auto"</code></td><td><code>"auto"</code> — detect car variant at runtime <BR>(Cayenne E3 / 911 992 / Panamera G2 → <code>"always"</code>, Macan → <code>"distance"</code>). <BR><code>"always"</code> — send both text and bargraph. <BR><code>"distance"</code> — text only. <BR><code>"dynamic"</code> — text when far, bargraph only within <code>dynamicBargraphDistance</code>. <BR>Explicit JSON values override auto-detection.</td></tr>
+                    <tr><td><code>dynamicBargraphDistance</code></td><td>int (m)</td><td><code>100</code></td><td>In <code>"dynamic"</code> mode: distance below which bargraph replaces text. Range: 10–500.</td></tr>
+                    <tr><td><code>dynamicBargraphPercent</code></td><td>int (%)</td><td><code>50</code></td><td>In <code>"dynamic"</code> mode: for short maneuvers (&lt;2× threshold), switch point as % of initial distance. Range: 10–90.</td></tr>
+                </table>
+            </div>
+
+            <div class="doc-section">
+                <h3>Dynamic Thresholds</h3>
+                <p>Controls how aggressively distance updates are sent per proximity zone. Each zone has a <strong>boundary</strong> (upper edge in metres), <strong>distance</strong> threshold (minimum change to trigger a send), and <strong>rateLimit</strong> (minimum ms between sends). <code>now</code> has no boundary — catch-all below <code>veryClose.boundary</code>.</p>
+                <table>
+                    <tr><th>Zone</th><th>Default boundary</th><th>Default distance</th><th>Default rateLimit</th></tr>
+                    <tr><td><code>veryFar</code></td><td>5000 m</td><td>100 m</td><td>2000 ms</td></tr>
+                    <tr><td><code>far</code></td><td>1000 m</td><td>50 m</td><td>500 ms</td></tr>
+                    <tr><td><code>approaching</code></td><td>500 m</td><td>25 m</td><td>250 ms</td></tr>
+                    <tr><td><code>near</code></td><td>200 m</td><td>15 m</td><td>200 ms</td></tr>
+                    <tr><td><code>close</code></td><td>100 m</td><td>15 m</td><td>150 ms</td></tr>
+                    <tr><td><code>veryClose</code></td><td>50 m</td><td>10 m</td><td>120 ms</td></tr>
+                    <tr><td><code>now</code></td><td>—</td><td>5 m</td><td>100 ms</td></tr>
+                </table>
+                <pre><code>"dynamicThresholds": {
+  "veryFar":    { "boundary": 5000, "distance": 100, "rateLimit": 2000 },
+  "far":        { "boundary": 1000, "distance": 50,  "rateLimit": 500  },
+  "approaching":{ "boundary": 500,  "distance": 25,  "rateLimit": 250  },
+  "near":       { "boundary": 200,  "distance": 15,  "rateLimit": 200  },
+  "close":      { "boundary": 100,  "distance": 15,  "rateLimit": 150  },
+  "veryClose":  { "boundary": 50,   "distance": 10,  "rateLimit": 120  },
+  "now":        {                    "distance": 5,   "rateLimit": 100  }
 }</code></pre>
+            </div>
 
-            <h3>Configuration Options</h3>
-            <ul style="margin-left: 2rem; margin-top: 1rem;">
-                <li><strong>enableFileLogging:</strong> Enable/disable log file writing</li>
-                <li><strong>enableFileHashing:</strong> Write sanitized (hashed) log file for privacy</li>
-                <li><strong>enableExternalLogging:</strong> Try SD/USB storage before /tmp</li>
-                <li><strong>enableRoundaboutLatching:</strong> Keep roundabout info until exit</li>
-                <li><strong>enableHeartbeat:</strong> 2-second BAP resend to override native nav</li>
-                <li><strong>forceImperial:</strong> Force miles/mph (overrides DSI/JSON)</li>
-                <li><strong>forceRHD:</strong> Force right-hand drive display</li>
-                <li><strong>logFileSize:</strong> Log rotation size in MB (1-100)</li>
-            </ul>
+            <div class="doc-section">
+                <h3>Countries</h3>
+                <p>List of country overrides for when locale cannot be detected from platform services. Each entry determines drive side (RHD) and unit system. Countries not listed default to LHD metric. <code>forceImperial</code> and <code>forceRHD</code> override this table entirely.</p>
+                <pre><code>{ "code": "GB", "name": "United Kingdom", "rhd": true, "imperial": true }
+{ "code": "US", "name": "United States",  "rhd": false, "imperial": true }
+{ "code": "DE", "name": "Germany",        "rhd": false, "imperial": false }</code></pre>
+                <table>
+                    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    <tr><td><code>code</code></td><td>string</td><td>ISO 3166-1 alpha-2 country code</td></tr>
+                    <tr><td><code>name</code></td><td>string</td><td>Human-readable name (informational only)</td></tr>
+                    <tr><td><code>rhd</code></td><td>bool</td><td><code>true</code> if vehicles drive on the left (right-hand drive countries)</td></tr>
+                    <tr><td><code>imperial</code></td><td>bool</td><td><code>true</code> if distances should be shown in miles/yards</td></tr>
+                </table>
+            </div>
         </div>
     </section>
 
@@ -518,8 +661,8 @@ Road names               → updateTurnToInfo(roadName, signpost)</code></pre>
 
             <div class="timeline">
                 <div class="timeline-item">
-                    <h3>v1010 - Beta candidate <span class="status-badge status-working">LATEST</span></h3>
-                    <p>Testing compatiblity across Porsche Cayenne, Macan and Panamera</p>
+                    <h3>v1027 - Beta candidate <span class="status-badge status-working">LATEST</span></h3>
+                    <p>Testing compatiblity across Porsche Cayenne, Macan,  Panamera and 911</p>
                 </div>
 
             </div>
@@ -532,10 +675,9 @@ Road names               → updateTurnToInfo(roadName, signpost)</code></pre>
 		<p>One1Blt: Android Auto/VNC to Mib2 rendering <a href=https://github.com/OneB1t/VcMOSTRenderMqb>https://github.com/OneB1t/VcMOSTRenderMqb</a></p>		
 		<p>adi961: Turn-by-turn to VC integration <a href=https://github.com/adi961/mib2-android-auto-vc>https://github.com/adi961/mib2-android-auto-vc</a></p>
 		<p>LawPaul: Mh2p Modkit <a href=https://lawpaul.github.io/MH2p_SD_ModKit_Site/>https://lawpaul.github.io/MH2p_SD_ModKit_Site</a></p>
-		<p>LukaDev: Managing screens in VW/Mib2</p>
+		<p>LukaDev: Managing screens in VW/Mib2 and carplay/gal hacking <a href=https://github.com/luka-dev/mib2q-carplay-rgi/>https://github.com/luka-dev/mib2q-carplay-rgi/</a></p>
 		<p>litdreams10: general platform knowledge, Android Auto testing</p>
-		<p>cojones: Android Auto testing</p>
-		<p>finpat: Android Auto testing</p>
+
 
 			<h2>Contributing</h2>
 			
