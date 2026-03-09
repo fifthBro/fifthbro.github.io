@@ -433,7 +433,7 @@
     <section id="architecture">
         <div class="container">
             <h2>Architecture</h2>
-            <p><code>AndroidAutoClusterIntegration</code> is a single Java class (Java 1.4 compatible — no generics, no enhanced for-each, no StringBuilder) that bridges the Android Auto DSI event stream to the Porsche/Audi instrument cluster BAP navigation protocol.</p>
+            <p><code>AndroidAutoClusterIntegration</code> is a single Java class (Java 1.4 compatible that bridges the Android Auto DSI event stream to the Porsche/Audi instrument cluster BAP navigation protocol.</p>
 
             <h3>Data Flow</h3>
             <pre><code>Android Auto (Phone)
@@ -465,7 +465,7 @@ Instrument Cluster</code></pre>
 
             <div class="doc-section">
                 <h3>AA Event → BAP Maneuver Translation</h3>
-                <p>Maps Android Auto <code>eventCode</code> (1–19) + <code>turnSide</code> + <code>angle</code> + <code>num</code> to a BAP maneuver descriptor. Direction is a 0–255 byte (0=straight, 64=left/90°, 128=back/180°, 192=right/270°).</p>
+                <p>Maps Android Auto <code>eventCode</code> (1–19) + <code>turnSide</code> + <code>angle</code> + <code>num</code> to a BAP maneuver descriptor. <BR></BR>Direction is a 0–255 byte (0=straight, 64=left/90°, 128=back/180°, 192=right/270°).</p>
                 <table>
                     <tr><th>Event(s)</th><th>Translation</th></tr>
                     <tr><td><code>event=3–5</code> (turns)</td><td>TURN, direction from <code>angle</code> or fallback to <code>turnSide</code></td></tr>
@@ -474,7 +474,7 @@ Instrument Cluster</code></pre>
                     <tr><td><code>event=8/10</code> (off-ramp/merge)</td><td>EXIT_LEFT or EXIT_RIGHT based on <code>turnSide</code>; side=0 → FOLLOW_STREET</td></tr>
                     <tr><td><code>event=9</code> (fork)</td><td>FORK_2</td></tr>
                     <tr><td><code>event=14</code> (STRAIGHT/KEEP)</td><td><code>num==1</code> = Waze lane-keep → FOLLOW_STREET; <code>num==0</code> or <code>num&gt;1</code> = motorway exit → EXIT_LEFT/RIGHT</td></tr>
-                    <tr><td><code>event=11–13</code> (roundabout)</td><td>ROUNDABOUT_TRS_LEFT/RIGHT. RHD angle correction: <code>(540−angle)%360</code>; LHD: <code>(angle+180)%360</code>. T-junction override: 180° → 0° when exit ≤ 2</td></tr>
+                    <tr><td><code>event=11–13</code> (roundabout)</td><td>ROUNDABOUT_TRS_LEFT/RIGHT. <BR>RHD angle correction: <code>(540−angle)%360</code>; <BR>LHD: <code>(angle+180)%360</code>. <BR>T-junction override: 180° → 0° when exit ≤ 2</td></tr>
                     <tr><td><code>event=16/17</code> (ferry)</td><td>FERRY</td></tr>
                     <tr><td><code>event=19</code> (destination preview)</td><td>Sets flag, falls through as FOLLOW_STREET. DESTINATION symbol shown only on <code>event=0 valid=2</code></td></tr>
                 </table>
@@ -494,7 +494,7 @@ Instrument Cluster</code></pre>
 
             <div class="doc-section">
                 <h3>Heartbeat</h3>
-                <p>A daemon timer fires every <code>heartbeatInterval</code> ms (default 2000ms) while navigation is active. It resends the last cached maneuver, distance, bargraph, and destination data to continuously override the cluster's native navigation display.</p>
+                <p>A daemon timer fires every <code>heartbeatInterval</code> ms (default 2000ms) while navigation is active. <BR>It resends the last cached maneuver, distance, bargraph, and destination data to continuously override the cluster's native navigation display.</p>
             </div>
 
             <div class="doc-section">
@@ -524,12 +524,12 @@ Instrument Cluster</code></pre>
 
             <div class="doc-section">
                 <h3>Roundabout Latching</h3>
-                <p>Android Auto sends EXIT (event=13) first, then CONTINUE (event=12) × N through the roundabout. Latching caches the exit direction on event=11/13 and reuses it for all subsequent event=12 updates, preventing the arrow from flickering. Cleared on any non-roundabout event. Configurable via <code>enableRoundaboutLatching</code>.</p>
+                <p>Android Auto sends EXIT (event=13) first, then CONTINUE (event=12) × N through the roundabout. <BR>Latching caches the exit direction on event=11/13 and reuses it for all subsequent event=12 updates, preventing the arrow from flickering. <BR>Cleared on any non-roundabout event. Configurable via <code>enableRoundaboutLatching</code>.</p>
             </div>
 
             <div class="doc-section">
                 <h3>Logging</h3>
-                <p>Two parallel log files: <strong>plain</strong> (full road names) and <strong>hashed</strong> (road names, music metadata replaced with <code>[HASH_nnn]</code> for privacy). Each entry has a dual timestamp: QNX boot time + real car clock from <code>ISysServices.clock().localTime()</code>. When <code>enableExternalLogging=true</code>, logs are written to USB/SD if writable, with automatic fallback to <code>/tmp</code>.</p>
+                <p>Two parallel log files: <strong>plain</strong> (full road names) and <strong>hashed</strong> (road names, music metadata replaced with <code>[HASH_nnn]</code> for privacy). <BR>Each entry has a dual timestamp: QNX boot time + real car clock from <code>ISysServices.clock().localTime()</code>. <BR>When <code>enableExternalLogging=true</code>, logs are written to USB/SD if writable, with automatic fallback to <code>/tmp</code>.</p>
             </div>
         </div>
     </section>
@@ -551,7 +551,7 @@ Instrument Cluster</code></pre>
             </ul>
 			<h3>Prerequisites</h3>
             <ul style="margin-left: 2rem;">
-                <li>Download latest <a href="https://github.com/fifthBro/mh2p-cluster/tree/main/builds" class="cta-button">Release</a></li>
+                <li>Download latest <a href="https://github.com/fifthBro/mh2p-cluster/tree/main/builds">release</a></li>
                 <li>Format update media as FAT32</li>
                 <li>extract zip file to the root of SD card</li>
                 <li>start vehicle</li>
