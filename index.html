@@ -537,7 +537,7 @@ Instrument Cluster</code></pre>
     <section id="installation">
         <div class="container">
             <h2>Installation</h2>
-
+			<h3> <a href="https://lawpaul.github.io/MH2p_SD_ModKit_Site/"> Based on MH2p Mod Kit </a></h3>
             <div class="warning-box">
                 <strong>⚠️ Warning:</strong> This modifies java files on you PCM5/Mh2p unit. Only proceed if you understand the risks .
             </div>
@@ -563,10 +563,10 @@ Instrument Cluster</code></pre>
                 <li>MH2p will reboot into normal mode with mods installed/uninstalled</li>
             </ul>
             <h3>Build</h3>
-            <pre><code>Comin soon<git-hash>!</code></pre>
+            <pre><code>Edit build script with paths in your environment and run: <BR> recompile.sh<BR>or<BR>recompile.bat <git-hash>!</code></pre>
 
-            <h3>Deploy</h3>
-            <pre><code>Get in touch if you want to try Beta</code></pre>
+            <h3>Deploy and test</h3>
+            <pre><code>The easiest way is to just scp it to the target if you <a href="https://github.com/fifthBro/mh2p-ssh-access">enbaled ssh access</a></code></pre>
 
         </div>
     </section>
@@ -694,10 +694,16 @@ Instrument Cluster</code></pre>
 			<h2>Contributing</h2>
 			
             <p>This project is the result of extensive reverse-engineering and testing on mh2p. Contributions welcome!</p>
-
-            <h3>Development Setup</h3>
-		
-
+			<h3></h3>Troubleshooting / bug reports</h3>		
+			<BR>Format a FAT32 SD card
+			<BR>Put SD in PCM before turning the ignition on
+			<BR>Drive → afterwards when you turn the ignition off → pull SD card → look in the log for event that was wrong → match that event to the same one in the hashed log (time stamps can be useful)
+			<BR>Share the hashed logs + expected vs actual cluster behaviour
+            <h3>Known limitations Setup</h3>		
+			<BR>RHD and metric/imperial still requires testing
+			<BR>Roundabouts limited (Waze lacks exit angles so they can be wrong)
+			<BR> data granularity and slow update rate limit accuracy
+			<BR>Some glitches are inherent to Android Auto.
             <a href="https://github.com/fifthBro/mh2p-cluster" class="cta-button">View on GitHub (coming soon)→</a>
         </div>
     </section>
