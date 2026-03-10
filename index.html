@@ -478,7 +478,7 @@
     <section id="architecture">
         <div class="container">
             <h2>Architecture</h2>
-            <p><code>AndroidAutoClusterIntegration</code> is a single Java class (Java 1.4 compatible that bridges the Android Auto DSI event stream to the Porsche/Audi instrument cluster BAP navigation protocol.</p>
+            <p><code>AndroidAutoClusterIntegration</code> is a single Java class (Java 1.4) compatible that bridges the Android Auto DSI event stream to the Porsche/Audi instrument cluster BAP navigation protocol.</p>
 
             <h3>Data Flow</h3>
             <pre><code>Android Auto (Phone)
@@ -687,7 +687,7 @@ Instrument Cluster</code></pre>
 			<BR>Put SD in PCM before turning the ignition on
 			<BR>Drive → afterwards when you turn the ignition off → pull SD card → look in the log for event that was wrong → match that event to the same one in the hashed log (time stamps can be useful)
 			<BR>Share the hashed logs + expected vs actual cluster behaviour
-            <h3>Known limitations Setup</h3>		
+            <h3>Known limitations</h3>		
 			<BR>RHD and metric/imperial still requires testing
 			<BR>Roundabouts limited (Waze lacks exit angles so they can be wrong)
 			<BR> data granularity and slow update rate limit accuracy
