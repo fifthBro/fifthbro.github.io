@@ -366,7 +366,7 @@
         <div class="container">
 		
             <h2>Overview</h2>
-            <p>Preliminary integration that displays Android Auto navigation instructions from Porsche PCM5 <strike>/ VW / Audi </strike> MH2P to instrument cluster displays to  instrument cluster displays. Translates Android Auto DSI events into BAP (Board Access Protocol) messages for real-time turn-by-turn navigation on your cluster.</p>
+            <p>Preliminary integration that displays Android Auto and Carplay navigation instructions from Porsche PCM5 <strike>/ VW / Audi </strike> MH2P to instrument cluster displays to  instrument cluster displays. Translates Android Auto DSI events into BAP (Board Access Protocol) messages for real-time turn-by-turn navigation on your cluster.</p>
 
             <div class="info-box">
                 <strong>✅ Status:</strong> Beta (v01036)
@@ -375,11 +375,15 @@
             <h3>Why this project?</h3>
             <p>Native  navigation monopolizes the instrument cluster, this code will change that!. This integration:</p>
             <ul style="margin-left: 2rem; margin-top: 1rem;">
-                <li>Intercepts Android Auto navigation events via DSI (Device System Interface)</li>
+                <li>Renders dedicated Android Auto stream to cluster</li>
+				<li>Mirrors HMI Carplay to cluster</li>
+				<li>Intercepts Android Auto navigation events via DSI (Device System Interface)</li>
+				<li>Carplay navigation events via RGI</li>
                 <li>Converts them to BAP protocol messages</li>
                 <li>Sends to cluster via CombiBAPServiceNavi</li>
                 <li>Overrides native navigation with 2-second heartbeat</li>
                 <li>Supports both Google Maps and Waze</li>
+				
             </ul>
         </div>
     </section>
@@ -478,7 +482,7 @@
     <section id="architecture">
         <div class="container">
             <h2>Architecture</h2>
-            <p><code>AndroidAutoClusterIntegration</code> is a single Java class (Java 1.4) compatible that bridges the Android Auto DSI event stream to the Porsche/Audi instrument cluster BAP navigation protocol.</p>
+            <p><code>ClusterIntegration</code> is a single Java class (Java 1.4) compatible that bridges the Android Auto DSI and Carplay RGI event stream to the Porsche instrument cluster BAP navigation protocol.</p>
 
             <h3>Data Flow</h3>
             <pre><code>Android Auto (Phone)
