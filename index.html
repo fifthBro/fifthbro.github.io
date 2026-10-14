@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Android Auto and Carplay Cluster integration - Mh2p/PCM5</title>
+    <title>Android Auto and CarPlay Cluster Integration - Mh2p / PCM5</title>
     <style>
         * {
             margin: 0;
@@ -171,6 +171,11 @@
             color: white;
         }
 
+        .status-wip {
+            background: #6366f1;
+            color: white;
+        }
+
         code {
             background: #f4f4f4;
             padding: 0.2rem 0.5rem;
@@ -283,6 +288,14 @@
             border-radius: 4px;
         }
 
+        .scope-box {
+            background: #fdf2f8;
+            border-left: 4px solid var(--audi-red);
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -338,9 +351,9 @@
         <div class="container">
             <h1>
                 <span class="logo"></span>
-                Android Auto and Carplay Cluster Integration for Porsche mh2p/PCM5
+                Android Auto and CarPlay Cluster Integration for Porsche mh2p / PCM5
             </h1>
-            <p class="tagline">Bridge Android Auto and Carplay navigation from Porsche PCM5 <strike>/ VW / Audi</strike> MH2P to instrument cluster displays</p>
+            <p class="tagline">Bridge Android Auto and CarPlay navigation from Porsche PCM5 <strike>/ VW / Audi</strike> MH2P to the instrument cluster display. CarPlay cluster rendering now live.</p>
 
         </div>
     </header>
@@ -348,24 +361,26 @@
     <nav>
         <div class="container">
             <ul>
-				<li><a href="https://www.justgiving.com" target="_blank">Donate to charity </a></li>
+				<li><a href="https://www.justgiving.com" target="_blank">Donate to charity</a></li>
                 <li><a href="https://github.com/fifthbro/mh2p-cluster" target="_blank">GitHub</a></li>
 				<li><a href="#overview">Overview</a></li>
 				<li><a href="#features">Features</a></li>
+                <li><a href="#supported">Supported cars</a></li>
 				<li><a href="#download">Download</a></li>
-				<li><a href="#installation">Installation</a></li>                
+				<li><a href="#installation">Installation</a></li>
 				<li><a href="#architecture">Architecture</a></li>
-				<li><a href="#configuration">Configuration</a></li>                      
+				<li><a href="#configuration">Configuration</a></li>
+                <li><a href="#scope">Scope</a></li>
             </ul>
         </div>
     </nav>
   <section id="Sponsor">
         <div class="container">
 			<h2><a href="https://www.justgiving.com" class="cta-button">Donate to charity</a></h2>&nbsp;&nbsp;&nbsp;
-			<h2><a href="https://github.com/fifthBro/mh2p-cluster" class="cta-button">GitHub</a></h2> 	
+			<h2><a href="https://github.com/fifthBro/mh2p-cluster" class="cta-button">GitHub</a></h2>
 			<h3>This software is free and not for commercial use</h3>
         </div>
-    </section>		  
+    </section>
  	<section id="photo">
 		<div class="container">
 	    <img src="androidauto.jpg" alt="Android Auto" class="photo"> 
@@ -379,30 +394,30 @@
 		<div class="container">
 	    <img src="cp3.jpg" alt="CarPlay3" class="photo"> 
 		</div>
-    </section>				  
-		             		  
+    </section>		
+
     <section id="overview">
         <div class="container">
-		
+
             <h2>Overview</h2>
-            <p>Displays Android Auto and Carplay navigation instructions from Porsche PCM5 <strike>/ VW / Audi </strike> MH2P to instrument cluster displays to  instrument cluster displays. Translates Android Auto DSI events into BAP (Bedien-und Anzeigeprotokoll) messages for real-time turn-by-turn navigation on your cluster.</p>
+            <p>Turns the digital instrument cluster on Porsche PCM5 <strike>/ VW / Audi </strike> MH2P into a proper second navigation display driven by your phone — both Android Auto <em>and</em> CarPlay. Live map view, turn-by-turn arrows on the physical dial, seamless handoff back to native Porsche navigation when the phone disconnects.</p>
 
             <div class="info-box">
-                <strong>✅ Status:</strong> v0034_beta2_candidate_90d0b76
+                <strong>✅ Status:</strong> Stable release — CarPlay cluster rendering now live alongside Android Auto.
             </div>
 
-            <h3>Why this project?</h3>
-            <p>Native  navigation monopolizes the instrument cluster, this code will change that!. This integration:</p>
+            <h3>What it does</h3>
             <ul style="margin-left: 2rem; margin-top: 1rem;">
-                <li>Renders dedicated Android Auto stream to cluster</li>
-				<li>Mirrors HMI Carplay to cluster</li>
-				<li>Intercepts Android Auto navigation events via DSI (Device System Interface)</li>
-				<li>Carplay navigation events via RGI, thanks to https://github.com/luka-dev/mib2q-carplay-rgi/</li>
-                <li>Converts them to BAP protocol messages</li>
-                <li>Sends to cluster via CombiBAPServiceNavi</li>
-                <li>Overrides native navigation with 2-second heartbeat</li>
-                <li>Supports both Google Maps and Waze</li>
-				
+                <li><strong>CarPlay cluster nav</strong> — Apple Maps, Google Maps, Waze, whatever iPhone is running gets pushed to the digital cluster in real time</li>
+                <li><strong>Android Auto cluster nav</strong> — Google Maps, Waze, other AA-compatible apps mirror live to the cluster</li>
+                <li><strong>Turn-by-turn on the physical dial</strong> — maneuver icons, distance, lane guidance, roundabout exits, for both platforms</li>
+                <li><strong>Native maps come back cleanly</strong> — when the phone disconnects, Porsche's built-in navigation reclaims the cluster automatically</li>
+                <li><strong>HMI-independent</strong> — leave the main head-unit screen on native infotainment; the cluster keeps showing phone nav</li>
+                <li><strong>Session-stable</strong> — reconnects, park/drive cycles, HMI-off transitions all handled without the mirror dying</li>
+                <li>Intercepts Android Auto navigation events via DSI, CarPlay navigation via RGI</li>
+                <li>Second video stream (H.264 via NvMedia) decoded on the head unit and composited on the cluster's dedicated video surface</li>
+                <li>Heartbeat-based override so the display holds against native nav re-writes</li>
+                <li>Supports Google Maps, Waze, Apple Maps, and other third-party nav apps</li>
             </ul>
         </div>
     </section>
@@ -412,115 +427,146 @@
             <h2>Features</h2>
             <div class="feature-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">🗺️</div>
-                    <h3>Full Navigation Support</h3>
-                    <p>Turn arrows, distance, road names, roundabouts, highway exits - everything from Android Auto displayed on your cluster.</p>
+                    <div class="feature-icon">🚗</div>
+                    <h3>CarPlay Cluster Nav</h3>
+                    <p>Apple Maps, Google Maps, Waze — iPhone navigation renders on the digital cluster in real time. Turn arrows on the physical dial too.</p>
                 </div>
 
                 <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Real-Time Updates</h3>
-                    <p>60 FPS updates with automatic heartbeat to override native navigation. Seamless transitions and no flickering.</p>
+                    <div class="feature-icon">📱</div>
+                    <h3>Android Auto Cluster Nav</h3>
+                    <p>Live Android Auto navigation view on the cluster — Google Maps, Waze, and every other AA-compatible nav app.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>Full Turn-by-Turn</h3>
+                    <p>Turn arrows, distance, road names, roundabouts, highway exits, lane guidance — everything from your phone rendered on the cluster arrow display.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Native Maps Handoff</h3>
+                    <p>When the phone disconnects, the built-in Porsche navigation reclaims the cluster automatically. No reboot, no menu-diving.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🖥️</div>
+                    <h3>HMI-Independent</h3>
+                    <p>You can leave the centre display on native infotainment and the cluster keeps showing phone nav underneath. HMI-off / HMI-on transitions no longer kill the mirror.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🌍</div>
-                    <h3>Intelligent Unit Detection</h3>
-                    <p>Automatic km/mi and LHD/RHD detection via DSI services with JSON country fallback. Supports 60+ countries.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">💾</div>
-                    <h3>Automatic Storage Mounting</h3>
-                    <p>Auto-remounts SD/USB storage as writable via ASI services for external logging. No manual intervention needed.</p>
+                    <h3>Auto Unit Detection</h3>
+                    <p>Automatic km/mi and LHD/RHD detection via platform services with JSON country fallback. Supports 60+ countries.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">🔧</div>
                     <h3>JSON Configuration</h3>
-                    <p>Runtime-configurable logging, heartbeat, units, and more via embedded JSON config. No recompilation required.</p>
+                    <p>Runtime-configurable logging, heartbeat, units, and more via JSON. Override via USB/SD without reinstall.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">📊</div>
                     <h3>Comprehensive Logging</h3>
-                    <p>Detailed file logging with configurable size limits, external storage support, and optional message hashing for privacy.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-	
-    <section id="download">
-        <div class="container">
-            <h2><a href="https://github.com/fifthBro/mh2p-cluster/raw/refs/heads/main/builds/ClusterIntegration_v0034_beta2_candidate_90d0b76.zip" class="cta-button">Download</a></h2>			
-            <div class="timeline">
-                <div class="timeline-item">
-                    <h3>v1_main - Beta candidate <span class="status-badge status-working">LATEST</span></h3>
-                    <p>Testing compatiblity across Porsche Cayenne, Macan,  Panamera and 911</p>
+                    <p>Detailed dual-timestamp logs with optional privacy hashing and external USB/SD output for support and debugging.</p>
                 </div>
 
+                <div class="feature-card">
+                    <div class="feature-icon">🚙</div>
+                    <h3>Multi-Car Config</h3>
+                    <p>Per-car overrides for Cayenne, 911, Panamera, Macan, Audi A7. Bargraph mode and cluster behaviour auto-detected per variant.</p>
+                </div>
             </div>
         </div>
     </section>
+
+    <section id="supported">
+        <div class="container">
+            <h2>Supported vehicles</h2>
+            <p>Model years <strong>2019–2021</strong>. Firmware range <strong>26xx–29xx</strong>. Other firmwares can be enabled on request; the OEM/firmware gate is tunable in the installer.</p>
+            <table>
+                <tr><th>Model</th><th>Head unit</th><th>Status</th></tr>
+                <tr><td>Cayenne (9Y0)</td><td>PCM5 / MH2P</td><td><span class="status-badge status-working">Supported</span></td></tr>
+                <tr><td>Macan</td><td>PCM5 / MH2P</td><td><span class="status-badge status-working">Supported</span></td></tr>
+                <tr><td>Panamera</td><td>PCM5 / MH2P</td><td><span class="status-badge status-working">Supported</span></td></tr>
+                <tr><td>992.1 (911)</td><td>PCM5 / MH2P</td><td><span class="status-badge status-working">Supported</span></td></tr>
+                <tr><td>718 (Cayman / Boxster)</td><td>MHI2 / PCM4</td><td><span class="status-badge status-wip">AA working, CarPlay in progress</span></td></tr>
+            </table>
+        </div>
+    </section>
+
+    <section id="download">
+        <div class="container">
+            <h2><a href="https://github.com/fifthBro/mh2p-cluster/releases/latest" class="cta-button">Download latest release</a></h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>Stable — CarPlay cluster rendering + AA reliability rewrite <span class="status-badge status-working">LATEST</span></h3>
+                    <p>CarPlay nav in the cluster is live for the first time. Android Auto black-screen-on-connect race fixed. Session stability across park/drive cycles. HMI-independent operation. Native maps handoff on disconnect. Turn-by-turn fixes across both platforms.</p>
+                </div>
+                <div class="timeline-item">
+                    <h3>718 (MHI2/PCM4) port <span class="status-badge status-wip">IN PROGRESS</span></h3>
+                    <p>Android Auto working. CarPlay next.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="installation">
         <div class="container">
             <h2>Installation</h2>
-			<h3><a href="https://lawpaul.github.io/MH2p_SD_ModKit_Site/"> Based on MH2p Mod Kit </a></h3>
+			<h3><a href="https://lawpaul.github.io/MH2p_SD_ModKit_Site/">Based on MH2p Mod Kit</a></h3>
             <div class="warning-box">
-                <strong>⚠️ Warning:</strong> This modifies java files on you PCM5/Mh2p unit. Only proceed if you understand the risks.
+                <strong>⚠️ Warning:</strong> This modifies files on your PCM5 / MH2P unit. Only proceed if you understand the risks. Uninstall is reversible.
             </div>
 
             <h3>Prerequisites</h3>
             <ul style="margin-left: 2rem;">
-                <li>Car with PCM5/Mh2p</li>
-                <li>SD card</li>
-                <li>Android phone</li>
-                <li>iPhone</li>
+                <li>Car with PCM5 / MH2P head unit</li>
+                <li>SD card (FAT32)</li>
+                <li>Android Auto or CarPlay compatible phone</li>
             </ul>
-			<h3>Installation</h3>
+			<h3>Steps</h3>
             <ul style="margin-left: 2rem;">
-                <li>Download latest <a href="https://github.com/fifthBro/mh2p-cluster/raw/refs/heads/main/builds/ClusterIntegration_v0034_beta2_candidate_90d0b76.zip">release</a></li>
-                <li>Format update media as FAT32</li>
-                <li>extract zip file to the root of SD card</li>
-                <li>start vehicle</li>
-				<li>insert the SD card</li>
-                <li>within few seconds, MH2p will reboot</li>
-                <li>update installs automatically</li>
-                <li>when update is done installing, a prompt will say "Please remove update media"</li>
-				<li>remove update media from vehicle</li>
-                <li>MH2p will reboot into normal mode with mods installed/uninstalled</li>
+                <li>Download the latest <a href="https://github.com/fifthBro/mh2p-cluster/releases/latest">release</a></li>
+                <li>Format the SD card as FAT32</li>
+                <li>Extract the ZIP to the root of the SD card</li>
+                <li>Start the vehicle</li>
+				<li>Insert the SD card</li>
+                <li>Within a few seconds, the head unit will reboot</li>
+                <li>The update installs automatically</li>
+                <li>When done, a prompt says "Please remove update media"</li>
+				<li>Remove the SD card from the vehicle</li>
+                <li>Head unit reboots into normal mode with the mod installed</li>
             </ul>
 			<h3>Uninstall</h3>
             <ul style="margin-left: 2rem;">
-                <li>Place empty uninstall.txt file in Mods/ClusterIntegration and run the mod via SD card.</li>
+                <li>On the SD card, rename <code>uninstall.txt.template</code> to <code>uninstall.txt</code></li>
+                <li>Re-run the ModKit update procedure with the SD card</li>
+                <li><code>Update/uninstall.sh</code> runs automatically and restores originals from backup</li>
+                <li>Remove <code>uninstall.txt</code> from the SD card afterwards so it doesn't re-trigger on the next boot</li>
             </ul>
-            <h3>Build</h3>
-            <pre><code>Edit build script with paths in your environment and run: <BR>recompile.sh<BR> or<BR>recompile.bat</code></pre>
-
-            <h3>Deploy and test</h3>
-            <pre><code>The easiest way is to just scp it to the target if you <a href="https://github.com/fifthBro/mh2p-ssh-access">enbaled ssh access</a></code></pre>
-
         </div>
     </section>
+
     <section id="architecture">
         <div class="container">
             <h2>Architecture</h2>
-            <p><code>ClusterIntegration</code> is a single Java class (Java 1.4) compatible that bridges the Android Auto DSI and Carplay RGI event stream to the Porsche instrument cluster BAP navigation protocol.</p>
+            <p><code>ClusterIntegration</code> bridges the Android Auto DSI event stream and the CarPlay RGI event stream to the Porsche instrument cluster BAP navigation protocol, plus a second video stream from the phone that is decoded on the head unit and composited to the cluster's dedicated video surface.</p>
 
             <h3>Data Flow</h3>
-            <pre><code>Android Auto (Phone)
+            <pre><code>Phone (Android Auto or CarPlay)
         ↓
-    DSI Events (Navigation, Media)
-        ↓
-AndroidAutoClusterIntegration
-    ├─ navFocusRequestNotification   → start/stop heartbeat, set RGType
-    ├─ updateNavigationNextTurnEvent → convertToBAPManeuver → updateManeuverDescriptor
-    ├─ updateNavigationNextTurnDistance → rate-limit → unit convert → updateDistanceToNextManeuver
-    └─ Heartbeat Timer (every 2s)   → resend cached maneuver+distance
-        ↓
-CombiBAPServiceNavi (OSGi)
-        ↓
-Instrument Cluster</code></pre>
+    Nav events (DSI / RGI)      +    H.264 video stream
+        ↓                                    ↓
+ClusterIntegration               Cluster daemon
+    ├─ event → BAP maneuver          ├─ NvMedia H.264 decode
+    ├─ heartbeat (every 2s)          ├─ YV12 → RGBA
+    └─ CombiBAPServiceNavi           └─ Cluster video window
+        ↓                                    ↓
+Instrument Cluster (arrow dial + video display)</code></pre>
 
             <div class="doc-section">
                 <h3>Service Injection</h3>
@@ -530,14 +576,14 @@ Instrument Cluster</code></pre>
                     <tr><td><code>CombiBAPServiceNavi</code></td><td>BAP cluster output — maneuver, distance, RGStatus, destination</td></tr>
                     <tr><td><code>ISysServices</code></td><td>Unit system detection, car clock, car type/variant detection</td></tr>
                     <tr><td><code>ICarCoreServices</code></td><td>Drive-side detection via <code>exteriorLight().leftHandTraffic()</code></td></tr>
-                    <tr><td><code>StorageMountHandler</code></td><td>Remounts USB/SD R/W for external log writing</td></tr>                    
+                    <tr><td><code>StorageMountHandler</code></td><td>Remounts USB/SD R/W for external log writing</td></tr>
                     <tr><td><code>ICarStatisticsService</code></td><td>Injected but not currently used in active code</td></tr>
                 </table>
             </div>
 
             <div class="doc-section">
-                <h3>AA Event → BAP Maneuver Translation</h3>
-                <p>Maps Android Auto <code>eventCode</code> (1–19) + <code>turnSide</code> + <code>angle</code> + <code>num</code> to a BAP maneuver descriptor. <BR></BR>Direction is a 0–255 byte (0=straight, 64=left/90°, 128=back/180°, 192=right/270°).</p>
+                <h3>AA / CarPlay Event → BAP Maneuver Translation</h3>
+                <p>Maps <code>eventCode</code> (1–19) + <code>turnSide</code> + <code>angle</code> + <code>num</code> to a BAP maneuver descriptor. <BR>Direction is a 0–255 byte (0=straight, 64=left/90°, 128=back/180°, 192=right/270°).</p>
                 <table>
                     <tr><th>Event(s)</th><th>Translation</th></tr>
                     <tr><td><code>event=3–5</code> (turns)</td><td>TURN, direction from <code>angle</code> or fallback to <code>turnSide</code></td></tr>
@@ -555,29 +601,18 @@ Instrument Cluster</code></pre>
             <div class="doc-section">
                 <h3>Distance Update Pipeline</h3>
                 <ol style="margin-left: 2rem;">
-                    <li style="margin-bottom:0.5rem;"><strong>Throttle check</strong> — minimum ms between sends per proximity zone (veryFar=2000ms down to now=100ms). In "always" bargraph mode, bargraph-only updates bypass the throttle.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Throttle check</strong> — minimum ms between sends per proximity zone (veryFar=2000ms down to now=100ms).</li>
                     <li style="margin-bottom:0.5rem;"><strong>Maneuver change detection</strong> — key = <code>road|eventCode|turnSide</code>. New maneuver resets baseline distance and bypasses throttle for first update.</li>
-                    <li style="margin-bottom:0.5rem;"><strong>Distance threshold</strong> — minimum change required per zone (100m at veryFar down to 5m at now) before text updates. Bargraph always updates for smooth fill.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Distance threshold</strong> — minimum change required per zone (100m at veryFar down to 5m at now).</li>
                     <li style="margin-bottom:0.5rem;"><strong>Unit conversion</strong> — metric: m below 100m, tenths of km to 19.9km. Imperial: yards below 161m, tenths of miles to 9.9mi.</li>
                     <li style="margin-bottom:0.5rem;"><strong>Bargraph</strong> — <code>(1 − distance/maneuverInitialDistance) × 100</code>, clamped 0–100.</li>
-                    <li style="margin-bottom:0.5rem;"><strong>Roundabout traversal</strong> — force distance/bargraph to 0 during CONTINUE events to suppress erratic display inside roundabout.</li>
+                    <li style="margin-bottom:0.5rem;"><strong>Roundabout traversal</strong> — force distance/bargraph to 0 during CONTINUE events to suppress erratic display inside roundabouts.</li>
                 </ol>
             </div>
 
             <div class="doc-section">
                 <h3>Heartbeat</h3>
-                <p>A daemon timer fires every <code>heartbeatInterval</code> ms (default 2000ms) while navigation is active. <BR>It resends the last cached maneuver, distance, bargraph, and destination data to continuously override the cluster's native navigation display.</p>
-            </div>
-
-            <div class="doc-section">
-                <h3>Unit &amp; Drive-Side Detection (3-tier each)</h3>
-                <table>
-                    <tr><th>Priority</th><th>Units</th><th>Drive side</th></tr>
-                    <tr><td>1 (highest)</td><td><code>forceImperial</code> config flag</td><td><code>forceRHD</code> config flag</td></tr>
-                    <tr><td>2</td><td><code>ISysServices.units().distance().setting()</code> (1=km, 2=mi)</td><td><code>ICarCoreServices.exteriorLight().leftHandTraffic()</code></td></tr>
-                    <tr><td>3</td><td>JSON <code>countries</code> table via locale/system properties</td><td>JSON <code>countries</code> table <code>rhd</code> field</td></tr>
-                    <tr><td>4 (default)</td><td>Metric</td><td>LHD</td></tr>
-                </table>
+                <p>A daemon timer fires every <code>heartbeatInterval</code> ms (default 2000ms) while navigation is active. It resends the last cached maneuver, distance, bargraph, and destination data to continuously override the cluster's native navigation display.</p>
             </div>
 
             <div class="doc-section">
@@ -595,13 +630,8 @@ Instrument Cluster</code></pre>
             </div>
 
             <div class="doc-section">
-                <h3>Roundabout Latching</h3>
-                <p>Android Auto sends EXIT (event=13) first, then CONTINUE (event=12) × N through the roundabout. <BR>Latching caches the exit direction on event=11/13 and reuses it for all subsequent event=12 updates, preventing the arrow from flickering. <BR>Cleared on any non-roundabout event. Configurable via <code>enableRoundaboutLatching</code>.</p>
-            </div>
-
-            <div class="doc-section">
                 <h3>Logging</h3>
-                <p>Two parallel log files: <strong>plain</strong> (full road names) and <strong>hashed</strong> (road names, music metadata replaced with <code>[HASH_nnn]</code> for privacy). <BR>Each entry has a dual timestamp: QNX boot time + real car clock from <code>ISysServices.clock().localTime()</code>. <BR>When <code>enableExternalLogging=true</code>, logs are written to USB/SD if writable, with automatic fallback to <code>/tmp</code>.</p>
+                <p>Two parallel log files: <strong>plain</strong> (full road names) and <strong>hashed</strong> (road names, music metadata replaced with <code>[HASH_nnn]</code> for privacy). <BR>Each entry has a dual timestamp: QNX boot time + real car clock. <BR>When <code>enableExternalLogging=true</code>, logs are written to USB/SD if writable, with automatic fallback to <code>/tmp</code>.</p>
             </div>
         </div>
     </section>
@@ -609,22 +639,22 @@ Instrument Cluster</code></pre>
     <section id="configuration">
         <div class="container">
             <h2>Configuration</h2>
-            <p>The config file <code>androidauto_cluster_config.json</code> is embedded in the JAR. <BR>To override without reflashing, place the file on a USB stick or SD card — the app checks these paths first:</p>
-            <pre><code>/fs/usb0_0/androidauto_cluster_config.json
-/fs/usb1_0/androidauto_cluster_config.json
-/fs/sda0/androidauto_cluster_config.json
-/fs/sdb0/androidauto_cluster_config.json</code></pre>
+            <p>The config file <code>cluster_config.json</code> is installed on the head unit. To override without reinstalling, place a file on a USB stick or SD card — the app checks these paths first:</p>
+            <pre><code>/fs/usb0_0/cluster_config.json
+/fs/usb1_0/cluster_config.json
+/fs/sda0/cluster_config.json
+/fs/sdb0/cluster_config.json</code></pre>
 
             <div class="doc-section">
                 <h3>Logging</h3>
                 <table>
                     <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
                     <tr><td><code>enableFileLogging</code></td><td>bool</td><td><code>true</code></td><td>Master switch for all file logging.</td></tr>
-                    <tr><td><code>enableFileHashing</code></td><td>bool</td><td><code>false</code></td><td>Write a second log with road names/music hashed for privacy. Requires <code>enableFileLogging</code>.</td></tr>
+                    <tr><td><code>enableFileHashing</code></td><td>bool</td><td><code>false</code></td><td>Write a second log with road names/music hashed for privacy.</td></tr>
                     <tr><td><code>enableExternalLogging</code></td><td>bool</td><td><code>false</code></td><td>Write logs to USB/SD if present; falls back to <code>logFilePath</code>.</td></tr>
-                    <tr><td><code>logFilePath</code></td><td>string</td><td><code>/tmp/androidauto_cluster.log</code></td><td>Plain log file path.</td></tr>
-                    <tr><td><code>hashedLogFilePath</code></td><td>string</td><td><code>/tmp/androidauto_cluster_hashed.log</code></td><td>Hashed log file path.</td></tr>
-                    <tr><td><code>logFileSize</code></td><td>int (MB)</td><td><code>50</code></td><td>Max file size before deletion and restart. Range: 1–100.</td></tr>
+                    <tr><td><code>logFilePath</code></td><td>string</td><td><code>/tmp/cluster.log</code></td><td>Plain log file path.</td></tr>
+                    <tr><td><code>hashedLogFilePath</code></td><td>string</td><td><code>/tmp/cluster_hashed.log</code></td><td>Hashed log file path.</td></tr>
+                    <tr><td><code>logFileSize</code></td><td>int (MB)</td><td><code>50</code></td><td>Max file size before rotation. Range: 1–100.</td></tr>
                 </table>
             </div>
 
@@ -633,9 +663,9 @@ Instrument Cluster</code></pre>
                 <table>
                     <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
                     <tr><td><code>enableRoundaboutLatching</code></td><td>bool</td><td><code>true</code></td><td>Cache and hold roundabout exit direction across ENTER→CONTINUE→EXIT events to prevent arrow flickering.</td></tr>
-                    <tr><td><code>enableHeartbeat</code></td><td>bool</td><td><code>true</code></td><td>Periodically resend last maneuver+distance to prevent native nav from overwriting AA data.</td></tr>
+                    <tr><td><code>enableHeartbeat</code></td><td>bool</td><td><code>true</code></td><td>Periodically resend last maneuver+distance to prevent native nav from overwriting.</td></tr>
                     <tr><td><code>heartbeatInterval</code></td><td>int (ms)</td><td><code>2000</code></td><td>Heartbeat period. Range: 100–10000.</td></tr>
-                    <tr><td><code>maneuverStateMask</code></td><td>int</td><td><code>0</code></td><td>Bitmask for <code>updateManeuverState</code> calls. <BR><code>0</code> = disabled. <BR>bit0=state1 FOLLOW (&gt;500m), <BR>bit1=state2 PREPARE (200–500m), <BR>bit2=state3 DISTANCE (50–200m), <BR>bit3=state4 CALL_FOR_ACTION (&lt;50m). Falls back to nearest lower enabled state. <BR>Example: <code>15</code> (0b1111) = all states.</td></tr>
+                    <tr><td><code>maneuverStateMask</code></td><td>int</td><td><code>0</code></td><td>Bitmask for <code>updateManeuverState</code> calls. <BR><code>0</code> = disabled. <BR>bit0=FOLLOW (&gt;500m), bit1=PREPARE (200–500m), bit2=DISTANCE (50–200m), bit3=CALL_FOR_ACTION (&lt;50m). <BR>Example: <code>15</code> = all states.</td></tr>
                 </table>
             </div>
 
@@ -643,11 +673,11 @@ Instrument Cluster</code></pre>
                 <h3>Units and Display</h3>
                 <table>
                     <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
-                    <tr><td><code>forceImperial</code></td><td>bool</td><td><code>false</code></td><td>Always use miles/yards, ignoring car settings. For testing on metric testbenches.</td></tr>
-                    <tr><td><code>forceRHD</code></td><td>bool</td><td><code>false</code></td><td>Always treat vehicle as right-hand drive, overriding all detection.</td></tr>
+                    <tr><td><code>forceImperial</code></td><td>bool</td><td><code>false</code></td><td>Always use miles/yards, ignoring car settings.</td></tr>
+                    <tr><td><code>forceRHD</code></td><td>bool</td><td><code>false</code></td><td>Always treat vehicle as right-hand drive.</td></tr>
                     <tr><td><code>metricUnitThreshold</code></td><td>int (m)</td><td><code>100</code></td><td>Below this, display switches from km to m. Range: 50–5000.</td></tr>
                     <tr><td><code>imperialUnitThreshold</code></td><td>int (m)</td><td><code>161</code></td><td>Below this (~0.1 mi), display switches from miles to yards. Range: 50–5000.</td></tr>
-                    <tr><td><code>destinationDisplayDuration</code></td><td>int (ms)</td><td><code>5000</code></td><td>How long to hold the arrival maneuver on screen before clearing. Range: 0–10000.</td></tr>
+                    <tr><td><code>destinationDisplayDuration</code></td><td>int (ms)</td><td><code>5000</code></td><td>How long to hold arrival maneuver on screen before clearing. Range: 0–10000.</td></tr>
                 </table>
             </div>
 
@@ -655,9 +685,9 @@ Instrument Cluster</code></pre>
                 <h3>Bargraph</h3>
                 <table>
                     <tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr>
-                    <tr><td><code>bargraphMode</code></td><td>string</td><td><code>"auto"</code></td><td><code>"auto"</code> — detect car variant at runtime <BR>(Cayenne E3 / 911 992 / Panamera G2 → <code>"always"</code>, Macan → <code>"distance"</code>). <BR><code>"always"</code> — send both text and bargraph. <BR><code>"distance"</code> — text only. <BR><code>"dynamic"</code> — text when far, bargraph only within <code>dynamicBargraphDistance</code>. <BR>Explicit JSON values override auto-detection.</td></tr>
+                    <tr><td><code>bargraphMode</code></td><td>string</td><td><code>"auto"</code></td><td><code>"auto"</code> — detect car variant at runtime. <code>"always"</code> — send both text and bargraph. <code>"distance"</code> — text only. <code>"dynamic"</code> — bargraph only within <code>dynamicBargraphDistance</code>.</td></tr>
                     <tr><td><code>dynamicBargraphDistance</code></td><td>int (m)</td><td><code>100</code></td><td>In <code>"dynamic"</code> mode: distance below which bargraph replaces text. Range: 10–500.</td></tr>
-                    <tr><td><code>dynamicBargraphPercent</code></td><td>int (%)</td><td><code>50</code></td><td>In <code>"dynamic"</code> mode: for short maneuvers (&lt;2× threshold), switch point as % of initial distance. Range: 10–90.</td></tr>
+                    <tr><td><code>dynamicBargraphPercent</code></td><td>int (%)</td><td><code>50</code></td><td>In <code>"dynamic"</code> mode: for short maneuvers, switch point as % of initial distance. Range: 10–90.</td></tr>
                 </table>
             </div>
 
@@ -687,57 +717,64 @@ Instrument Cluster</code></pre>
 
             <div class="doc-section">
                 <h3>Countries</h3>
-                <p>List of country overrides for when locale cannot be detected from platform services. Each entry determines drive side (RHD) and unit system. Countries not listed default to LHD metric. <code>forceImperial</code> and <code>forceRHD</code> override this table entirely.</p>
+                <p>Country overrides for when locale cannot be detected from platform services. <code>forceImperial</code> and <code>forceRHD</code> override this table entirely.</p>
                 <pre><code>{ "code": "GB", "name": "United Kingdom", "rhd": true, "imperial": true }
 { "code": "US", "name": "United States",  "rhd": false, "imperial": true }
 { "code": "DE", "name": "Germany",        "rhd": false, "imperial": false }</code></pre>
-                <table>
-                    <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-                    <tr><td><code>code</code></td><td>string</td><td>ISO 3166-1 alpha-2 country code</td></tr>
-                    <tr><td><code>name</code></td><td>string</td><td>Human-readable name (informational only)</td></tr>
-                    <tr><td><code>rhd</code></td><td>bool</td><td><code>true</code> if vehicles drive on the left (right-hand drive countries)</td></tr>
-                    <tr><td><code>imperial</code></td><td>bool</td><td><code>true</code> if distances should be shown in miles/yards</td></tr>
-                </table>
             </div>
         </div>
     </section>
 
+    <section id="scope">
+        <div class="container">
+            <h2>Scope of the project</h2>
+            <p>Two years of evenings and weekends. Reverse engineering of the QNX Screen API, NvMedia decoder, iAP2 protocol, Android Auto and CarPlay wire protocols, Porsche's BAP cluster protocol, and the composition stack on both PCM5 and MHI2 head units.</p>
+
+            <div class="scope-box">
+                <p><strong>Rough labor equivalent</strong> at specialist embedded / reverse-engineering contractor rates: <strong>$90k–$200k</strong>. For an automotive middleware vendor doing this cleanly with docs and full test rig: <strong>$250k–$400k</strong>. What an OEM would price this at as a factory feature: <strong>$500–$2000 per vehicle</strong>.</p>
+                <p style="margin-top: 0.8rem;">This project is free. None of that value is going anywhere except back into more releases.</p>
+            </div>
+
+            <p style="margin-top: 1rem;">If someone is asking you for money for a cluster mod built on this work, they got the underlying code for free too.</p>
+        </div>
+    </section>
 
 <section id="Contributing">
         <div class="container">
 
-			<h2>Contributing</h2>
-			
-            <p>This project is the result of extensive reverse-engineering and testing on mh2p. Contributions welcome!</p>
-			<h3>Troubleshooting / bug reports</h3>		
+			<h2>Contributing &amp; Troubleshooting</h2>
+
+            <p>This project is the result of extensive reverse-engineering and testing on MH2P. Contributions welcome via the ModKit Discord.</p>
+			<h3>Troubleshooting / bug reports</h3>
 			<BR>Format a FAT32 SD card
-			<BR>Put SD in PCM before turning the ignition on
-			<BR>Drive → afterwards when you turn the ignition off → pull SD card → look in the log for event that was wrong → match that event to the same one in the hashed log (time stamps can be useful)
-			<BR>Share the hashed logs + expected vs actual cluster behaviour
-            <h3>Known limitations</h3>		
-			<BR>RHD and metric/imperial still requires testing
-			<BR>Roundabouts limited (Waze lacks exit angles so they can be wrong)
-			<BR> data granularity and slow update rate limit accuracy
-			<BR>Some glitches are inherent to Android Auto        
+			<BR>Put the SD in the head unit before turning ignition on
+			<BR>Drive → afterwards when you turn ignition off → pull SD card → look in the log for the event that was wrong → match it to the same one in the hashed log (timestamps help)
+			<BR>Share the hashed logs + expected vs actual cluster behaviour on the Discord
+            <h3>Known limitations</h3>
+			<BR>RHD and metric/imperial coverage still expanding — report issues
+			<BR>Roundabout accuracy limited by what the phone sends (Waze in particular can lack exit angles)
+			<BR>Data granularity and update rate limit accuracy on very short maneuvers
+			<BR>Some glitches are inherent to Android Auto / CarPlay themselves
         </div>
     </section>
-	
+
     <section id="Credits">
         <div class="container">
 		<h2>Credits</h2>
-		<p>LukaDev: Managing screens in VW/Mib2, Carplay RGI and GAL hacking, <a href=https://github.com/luka-dev/mib2q-carplay-rgi/>https://github.com/luka-dev/mib2q-carplay-rgi/</a></p>
-		<p>One1Blt: Android Auto/VNC to Mib2 rendering <a href=https://github.com/OneB1t/VcMOSTRenderMqb>https://github.com/OneB1t/VcMOSTRenderMqb</a></p>		
-		<p>adi961: Turn-by-turn to VC integration <a href=https://github.com/adi961/mib2-android-auto-vc>https://github.com/adi961/mib2-android-auto-vc</a></p>
-		<p>LawPaul: Mh2p Modkit <a href=https://lawpaul.github.io/MH2p_SD_ModKit_Site/>https://lawpaul.github.io/MH2p_SD_ModKit_Site</a></p>
-		<p>litdreams10: general platform knowledge, Android Auto testing</p>
+		<p><strong>LukaDev:</strong> Managing screens in VW/MIB2, CarPlay RGI and GAL hacking, <a href="https://github.com/luka-dev/mib2q-carplay-rgi/">https://github.com/luka-dev/mib2q-carplay-rgi/</a></p>
+		<p><strong>One1Blt:</strong> Android Auto / VNC to MIB2 rendering, <a href="https://github.com/OneB1t/VcMOSTRenderMqb">https://github.com/OneB1t/VcMOSTRenderMqb</a></p>
+		<p><strong>adi961:</strong> Turn-by-turn to VC integration, <a href="https://github.com/adi961/mib2-android-auto-vc">https://github.com/adi961/mib2-android-auto-vc</a></p>
+		<p><strong>LawPaul:</strong> MH2P Modkit, <a href="https://lawpaul.github.io/MH2p_SD_ModKit_Site/">https://lawpaul.github.io/MH2p_SD_ModKit_Site</a></p>
+		<p><strong>litdreams10:</strong> general platform knowledge, Android Auto testing</p>
+		<p><strong>ModKit Discord community:</strong> testing, bug reports, cross-car validation</p>
         </div>
     </section>
 
 
     <footer>
         <div class="container">
-            <p>&copy; 2026 Android Auto Cluster Integration | Open Source Project</p>
-            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Not affiliated with anyone</p>
+            <p>&copy; 2026 Android Auto and CarPlay Cluster Integration | Free open project</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Not affiliated with Porsche, Volkswagen, Audi, Google, or Apple.</p>
         </div>
     </footer>
 
