@@ -344,6 +344,66 @@
                 grid-template-columns: 1fr;
             }
         }
+		.support-panel {
+		    max-width: 760px;
+		    margin: 0 auto 2rem;
+		    padding: 2.5rem;
+		    text-align: center;
+		    background: #fff;
+		    border: 1px solid #e5e5e5;
+		    border-radius: 12px;
+		    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+		}
+		
+		.support-panel h3 {
+		    margin: 0 0 1rem;
+		    font-size: 1.7rem;
+		}
+		
+		.support-panel p {
+		    color: #555;
+		    margin-bottom: 1.5rem;
+		}
+		
+		.support-primary {
+		    display: block;
+		    max-width: 430px;
+		    margin: 0 auto;
+		    padding: 1.15rem 2rem;
+		    background: #BB0A30;
+		    color: white;
+		    border-radius: 8px;
+		    text-decoration: none;
+		    font-size: 1.2rem;
+		    font-weight: 700;
+		    transition: background 0.2s;
+		}
+		
+		.support-primary:hover {
+		    background: #990825;
+		}
+		
+		.download-secondary {
+		    display: inline-block;
+		    margin-top: 1.2rem;
+		    padding: 0.55rem 1rem;
+		    border: 1px solid #ccc;
+		    border-radius: 6px;
+		    color: #555;
+		    font-size: 0.9rem;
+		    text-decoration: none;
+		}
+		
+		.download-secondary:hover {
+		    border-color: #BB0A30;
+		    color: #BB0A30;
+		}
+		
+		.support-note {
+		    margin-top: 1rem;
+		    font-size: 0.8rem;
+		    color: #777;
+		}
     </style>
 </head>
 <body>
@@ -503,6 +563,32 @@
 			</script> </h2>
         </div>
     
+		 <div class="support-panel">
+            <h3>❤️ Support continued development</h3>
+
+            <p>
+                This software is developed and maintained in my spare time,
+                and made available completely free of charge.
+                If you find it useful, please consider supporting
+                further development and testing.
+            </p>
+
+            <a href="https://ko-fi.com/fifthbro"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="support-primary">
+                ❤️ Support this project on Ko-fi
+            </a>
+
+            <a href="https://github.com/fifthBro/mh2p-cluster/releases/latest"
+               class="download-secondary">
+                ↓ Download latest release
+            </a>
+
+            <div class="support-note">
+                Donations are optional. The software is free.
+            </div>
+        </div>
 		
 		<div class="container">
 			<iframe id='kofiframe' src='https://ko-fi.com/fifthbro/?hidefeed=true&widget=true&embed=true&preview=true' style='border:none;width:100%;padding:4px;background:#f9f9f9;' height='712' title='fifthbro'></iframe>
