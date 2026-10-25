@@ -404,6 +404,47 @@
 		    font-size: 0.8rem;
 		    color: #777;
 		}
+
+		Add this CSS:
+.install-steps {
+  padding-left: 24px;
+}
+
+.install-steps > li {
+  padding-left: 6px;
+  margin-bottom: 10px;
+}
+
+.install-detail {
+  margin: 12px 0 18px;
+}
+
+.install-detail p {
+  margin: 0 0 10px;
+}
+
+.install-directory {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.install-mac {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid #888;
+  background: rgba(128,128,128,0.07);
+  border-radius: 0 6px 6px 0;
+  line-height: 1.7;
+}
+
+.install-mac strong {
+  display: block;
+  margin-bottom: 4px;
+}
     </style>
 </head>
 <body>
@@ -628,46 +669,48 @@
 
             </ul>
 			<h3>Steps</h3>
-            <ul style="margin-left: 2rem;">
-                <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'I2I01UMJL5');kofiwidget2.draw();</script>
-				<li>Download the latest <a href="https://github.com/fifthBro/mh2p-cluster/releases/latest">release</a></li>
-                <li>Format the SD card as FAT32</li>
-<li>
-  Extract the ZIP to the root of the SD card
-  <ul>
-    <li>
-      The root of the SD card should look as below:
-      <div style="margin-top: 10px;">
-        <img src="dir.png"
-             alt="SD card directory structure"
-             style="max-width: 100%; height: auto;">
-      </div>
-    </li>
-    <li>
-      If using Mac, you need to take extra steps:
-      <ul>
-        <li>
-          <a href="https://youtu.be/7GyxGjJduF0">Video guide</a>
-        </li>
-        <li>
-          <a href="https://lawpaul.github.io/MH2p_SD_ModKit_Site/">
-            macOS text guide
-          </a>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</li>
+ <ol class="install-steps">
+  <li>
+    Download the latest
+    <a href="https://github.com/fifthBro/mh2p-cluster/releases">
+      release
+    </a>
+  </li>
 
-				
-                <li>Start the vehicle</li>
-				<li>Insert the SD card</li>
-                <li>Within a few seconds, the head unit will reboot</li>
-                <li>The update installs automatically</li>
-                <li>When done, a prompt says "Please remove update media"</li>
-				<li>Remove the SD card from the vehicle</li>
-                <li>Head unit reboots into normal mode with the mod installed</li>
-            </ul>
+  <li>Format the SD card as FAT32</li>
+
+  <li>
+    Extract the ZIP to the root of the SD card.
+
+    <div class="install-detail">
+      <p>The SD card should look like this:</p>
+
+      <img src="dir.png"
+           alt="SD card directory structure"
+           class="install-directory">
+
+      <div class="install-mac">
+        <strong>Using a Mac?</strong>
+        Additional steps are required:
+        <a href="https://youtu.be/7GyxGjJduF0?si=kfVy6Z3tNeogGk1R">
+          Video guide
+        </a>
+        ·
+        <a href="https://lawpaul.github.io/MH2p_SD_ModKit_Site/">
+          macOS text guide
+        </a>
+      </div>
+    </div>
+  </li>
+
+  <li>Start the vehicle</li>
+  <li>Insert the SD card</li>
+  <li>Within a few seconds, the head unit will reboot</li>
+  <li>The update installs automatically</li>
+  <li>When done, a prompt says "Please remove update media"</li>
+  <li>Remove the SD card from the vehicle</li>
+  <li>Head unit reboots into normal mode with the mod installed</li>
+</ol>
 			<h3>Uninstall</h3>
             <ul style="margin-left: 2rem;">
                 <li>On the SD card, rename <code>uninstall.txt.template</code> to <code>uninstall.txt</code></li>
