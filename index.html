@@ -165,7 +165,10 @@
             background: #10b981;
             color: white;
         }
-
+        .status-experimental {
+            background: #10b981;
+            color: yellow;
+        }
         .status-beta {
             background: #f59e0b;
             color: white;
@@ -463,6 +466,7 @@
         <div class="container">
             <ul>
 				<li><a href="https://ko-fi.com/fifthbro" target="_blank">Sponsor</a></li>            
+				<li><a href="#new">What's new</a></li>
 				<li><a href="#overview">Overview</a></li>
 				<li><a href="#features">Features</a></li>
                 <li><a href="#supported">Supported cars</a></li>
@@ -495,16 +499,16 @@
     </section>		
     <section id="new">
         <div class="container">	
-            <h3>What's new </h3>
+            <h2>What's new </h2>
 			
-            <h4>Porsche</h4>
+            <h3>Porsche</h3>
             <ul style="margin-left: 2rem; margin-top: 1rem;">
                 <li><strong>CarPlay scaling fixed on 911 (992) and Cayenne</strong> — Panamera layout updated too</li>
                 <li><strong>Macan: many fixes</strong> — map orientation, scaling and position for Android Auto and CarPlay</li>
                 <li><strong>Cluster map menu zoom with CarPlay</strong> — zoom in/out from the cluster's own map menu (OK button) now zooms the CarPlay map</li>
             </ul>
 
-            <h4>All cars</h4>
+            <h3>All cars</h3>
             <ul style="margin-left: 2rem; margin-top: 1rem;">
                 <li><strong>Stability fixes</strong> — including switching between Android Auto and CarPlay without a reboot</li>
                 <li><strong>Fewer CarPlay startup artefacts</strong> — the phone is asked for a fresh picture shortly after connecting</li>
@@ -534,10 +538,10 @@
         <div class="container">
 
             <h2>Overview</h2>
-            <p>Turns the digital instrument cluster on Porsche PCM5 <strike>/ VW / Audi </strike> MH2P into a proper second navigation display driven by your phone — both Android Auto <em>and</em> CarPlay. Live map view, turn-by-turn arrows on the physical dial, seamless handoff back to native Porsche navigation when the phone disconnects.</p>
+            <p>Turns the digital instrument cluster on Porsche PCM5 and Audi (experimental)  <strike> VW  </strike> MH2P into a proper second navigation display driven by your phone — both Android Auto <em>and</em> CarPlay. Live map view, turn-by-turn arrows on the physical dial, seamless handoff back to native Porsche navigation when the phone disconnects.</p>
 
             <div class="info-box">
-                <strong>✅ Status:</strong> Stable release — CarPlay cluster rendering now live alongside Android Auto.
+                <strong>✅ Status:</strong> Stable release — CarPlay cluster rendering now live alongside Android Auto. <B></B>Audi support experimental. </b>
             </div>
             <h3>What it does</h3>
             <ul style="margin-left: 2rem; margin-top: 1rem;">
@@ -626,6 +630,7 @@
                 <tr><td>Macan</td><td>PCM5 / MH2P</td><td><span class="status-badge status-working">Supported</span></td></tr>
                 <tr><td>Panamera</td><td>PCM5 / MH2P</td><td><span class="status-badge status-working">Supported</span></td></tr>
                 <tr><td>992.1 (911)</td><td>PCM5 / MH2P</td><td><span class="status-badge status-working">Supported</span></td></tr>
+				<tr><td>Audi</td><td> MH2P</td><td><span class="status-badge status-experimental">Experimental</span></td></tr>
                 <tr><td>718 (Cayman / Boxster)</td><td>MHI2 / PCM4</td><td><span class="status-badge status-wip">AA  and CarPlay working (not released) </span></td></tr>
             </table>
         </div>
