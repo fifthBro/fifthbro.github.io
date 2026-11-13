@@ -498,7 +498,38 @@
             <div class="info-box">
                 <strong>✅ Status:</strong> Stable release — CarPlay cluster rendering now live alongside Android Auto.
             </div>
+            <h3>What's new since v1105</h3>
 
+            <h4>Audi (EXPERIMENTAL)</h4>
+            <p>Audi head units are no longer blocked by the installer. Support is experimental: expect rough edges.</p>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>1080p Android Auto on the virtual cockpit</strong> — sharper text; the earlier 1080p colour smearing is fixed in the decoder, though some testers may still see it</li>
+                <li><strong>CarPlay layout per cockpit view</strong> — big map, sport/RS and classic big gauges each get their own layout, turn card on the right</li>
+                <li><strong>Steering-wheel control</strong> — hold OK to switch between the phone map and Audi's native map; scroll the wheel to zoom the CarPlay map</li>
+                <li><strong>No more compass during phone guidance</strong> — the cockpit keeps the native map instead of switching to the compass (<code>keepNativeMapOnPhoneNav</code>, on by default)</li>
+            </ul>
+
+            <h4>Audi known issues</h4>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>HUD</strong> — phone turn arrows do not show on the head-up display (street name only); still being worked on</li>
+                <li><strong>Layouts</strong> — some cockpit layouts may have the map in the wrong place or the wrong size</li>
+                <li><strong>Smearing</strong> — may still appear on some cars</li>
+            </ul>
+
+            <h4>Porsche</h4>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>CarPlay scaling fixed on 911 (992) and Cayenne</strong> — Panamera layout updated too</li>
+                <li><strong>Macan: many fixes</strong> — map orientation, scaling and position for Android Auto and CarPlay</li>
+                <li><strong>Cluster map menu zoom with CarPlay</strong> — zoom in/out from the cluster's own map menu (OK button) now zooms the CarPlay map</li>
+            </ul>
+
+            <h4>All cars</h4>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Stability fixes</strong> — including switching between Android Auto and CarPlay without a reboot</li>
+                <li><strong>Fewer CarPlay startup artefacts</strong> — the phone is asked for a fresh picture shortly after connecting</li>
+                <li><strong>Safer CarPlay config</strong> — a bad safe-area value can no longer drop the whole CarPlay session</li>
+                <li><strong>Wireless Android Auto compatible</strong> — works alongside the wireless Android Auto mod (both are loaded together)</li>
+            </ul>
             <h3>What it does</h3>
             <ul style="margin-left: 2rem; margin-top: 1rem;">
                 <li><strong>CarPlay cluster nav</strong> — Apple Maps, Google Maps, Waze, whatever iPhone is running gets pushed to the digital cluster in real time</li>
